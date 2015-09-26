@@ -11,8 +11,8 @@ import java.nio.ByteOrder;
 
 public class SensorRecord extends GenericTimestampRecord {
 
-    private int unfiltered;
-    private int filtered;
+    private long unfiltered;
+    private long filtered;
     private int rssi;
     private int OFFSET_UNFILTERED = 8;
     private int OFFSET_FILTERED = 12;

@@ -8,6 +8,7 @@ import android.os.BatteryManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.Utils;
 import com.eveningoutpost.dexdrip.Models.BgReading;
 import com.eveningoutpost.dexdrip.Models.Calibration;
 import com.mongodb.BasicDBObject;
@@ -267,55 +268,55 @@ public class NightscoutUploader {
         }
 
         private void populateV1APIBGEntry(JSONObject json, BgReading record) throws Exception {
-            SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss a");
-            format.setTimeZone(TimeZone.getDefault());
-            json.put("device", "xDrip-"+prefs.getString("dex_collection_method", "BluetoothWixel"));
-            json.put("date", record.timestamp);
+            SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss a", Locale.US);
+            format.setTimeZone(TimeZone.getTimeZone("GMT"));
+            json.put("device", "dexcom");
+            json.put("date", (long)record.timestamp);
             json.put("dateString", format.format(record.timestamp));
             json.put("sgv", (int)record.calculated_value);
             json.put("direction", record.slopeName());
             json.put("type", "sgv");
-            json.put("filtered", record.filtered_data * 1000);
-            json.put("unfiltered", record.age_adjusted_raw_value * 1000);
-            json.put("rssi", 100);
+            json.put("filtered", (long)record.filtered_data * 1000);
+            json.put("unfiltered", (long)record.age_adjusted_raw_value * 1000);
+            json.put("rssi", (int)100);
             json.put("noise", Integer.valueOf(record.noiseValue()));
         }
 
         private void populateLegacyAPIEntry(JSONObject json, BgReading record) throws Exception {
-            SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss a");
-            format.setTimeZone(TimeZone.getDefault());
-            json.put("device", "xDrip-"+prefs.getString("dex_collection_method", "BluetoothWixel"));
-            json.put("date", record.timestamp);
+            SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss a", Locale.US);
+            format.setTimeZone(TimeZone.getTimeZone("GMT"));
+            json.put("device", "dexcom");
+            json.put("date", (long)record.timestamp);
             json.put("dateString", format.format(record.timestamp));
             json.put("sgv", (int)record.calculated_value);
             json.put("direction", record.slopeName());
         }
 
         private void populateV1APIMeterReadingEntry(JSONObject json, Calibration record) throws Exception {
-            SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss a");
-            format.setTimeZone(TimeZone.getDefault());
-            json.put("device", "xDrip-"+prefs.getString("dex_collection_method", "BluetoothWixel"));
+            SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss a", Locale.US);
+            format.setTimeZone(TimeZone.getTimeZone("GMT"));
+            json.put("device", "dexcom");
             json.put("type", "mbg");
-            json.put("date", record.timestamp);
-            json.put("dateString", format.format(record.timestamp));
-            json.put("mbg", record.bg);
+            json.put("date", (long)record.timestamp);
+            json.put("dateString", format.format((long)record.timestamp));
+            json.put("mbg", (int)record.bg);
         }
 
         private void populateV1APICalibrationEntry(JSONObject json, Calibration record) throws Exception {
-            SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss a");
-            format.setTimeZone(TimeZone.getDefault());
-            json.put("device", "xDrip-" + prefs.getString("dex_collection_method", "BluetoothWixel"));
+            SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss a", Locale.US);
+            format.setTimeZone(TimeZone.getTimeZone("GMT"));
+            json.put("device", "dexcom");
             json.put("type", "cal");
-            json.put("date", record.timestamp);
-            json.put("dateString", format.format(record.timestamp));
+            json.put("date", (long)record.timestamp);
+            json.put("dateString", format.format((long)record.timestamp));
             if(record.check_in) {
-                json.put("slope", (long) (record.first_slope));
-                json.put("intercept", (long) ((record.first_intercept)));
-                json.put("scale", record.first_scale);
+                json.put("slope", (double) (record.first_slope));
+                json.put("intercept", (double) ((record.first_intercept)));
+                json.put("scale", (double)record.first_scale);
             } else {
-                json.put("slope", (long) (record.slope * 1000));
-                json.put("intercept", (long) ((record.intercept * -1000) / (record.slope * 1000)));
-                json.put("scale", 1);
+                json.put("slope", (double) (record.slope * 1000));
+                json.put("intercept", (double) ((record.intercept * -1000) / (record.slope * 1000)));
+                json.put("scale", (double)1);
             }
         }
 
@@ -345,8 +346,8 @@ public class NightscoutUploader {
 
         private boolean doMongoUpload(SharedPreferences prefs, List<BgReading> glucoseDataSets,
                                       List<Calibration> meterRecords,  List<Calibration> calRecords) {
-            SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss a");
-            format.setTimeZone(TimeZone.getDefault());
+            SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss a", Locale.US);
+            format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
             String dbURI = prefs.getString("cloud_storage_mongodb_uri", null);
             String collectionName = prefs.getString("cloud_storage_mongodb_collection", null);
@@ -368,15 +369,15 @@ public class NightscoutUploader {
                     for (BgReading record : glucoseDataSets) {
                         // make db object
                         BasicDBObject testData = new BasicDBObject();
-                        testData.put("device", "xDrip-"+prefs.getString("dex_collection_method", "BluetoothWixel"));
-                        testData.put("date", record.timestamp);
+                        testData.put("device", "dexcom");
+                        testData.put("date", (long)record.timestamp);
                         testData.put("dateString", format.format(record.timestamp));
-                        testData.put("sgv", Math.round(record.calculated_value));
+                        testData.put("sgv", (int)Math.round(record.calculated_value));
                         testData.put("direction", record.slopeName());
                         testData.put("type", "sgv");
-                        testData.put("filtered", record.filtered_data * 1000);
-                        testData.put("unfiltered", record.age_adjusted_raw_value * 1000 );
-                        testData.put("rssi", 100);
+                        testData.put("filtered", (long)(record.filtered_data * 1000));
+                        testData.put("unfiltered", (long)(record.age_adjusted_raw_value * 1000) );
+                        testData.put("rssi", (int)100);
                         testData.put("noise", Integer.valueOf(record.noiseValue()));
                         dexcomData.update(testData, testData, true, false, WriteConcern.UNACKNOWLEDGED);
                     }
@@ -385,28 +386,28 @@ public class NightscoutUploader {
                     for (Calibration meterRecord : meterRecords) {
                         // make db object
                         BasicDBObject testData = new BasicDBObject();
-                        testData.put("device", "xDrip-"+prefs.getString("dex_collection_method", "BluetoothWixel"));
+                        testData.put("device", "dexcom");
                         testData.put("type", "mbg");
-                        testData.put("date", meterRecord.timestamp);
-                        testData.put("dateString", format.format(meterRecord.timestamp));
-                        testData.put("mbg", meterRecord.bg);
+                        testData.put("date", (long)meterRecord.timestamp);
+                        testData.put("dateString", format.format((long)meterRecord.timestamp));
+                        testData.put("mbg", (int)meterRecord.bg);
                         dexcomData.update(testData, testData, true, false, WriteConcern.UNACKNOWLEDGED);
                     }
 
                     for (Calibration calRecord : calRecords) {
                         // make db object
                         BasicDBObject testData = new BasicDBObject();
-                        testData.put("device", "xDrip-"+prefs.getString("dex_collection_method", "BluetoothWixel"));
-                        testData.put("date", calRecord.timestamp);
-                        testData.put("dateString", format.format(calRecord.timestamp));
+                        testData.put("device", "dexcom");
+                        testData.put("date", (long)calRecord.timestamp);
+                        testData.put("dateString", format.format((long)calRecord.timestamp));
                         if(calRecord.check_in) {
-                            testData.put("slope", (long) (calRecord.first_slope));
-                            testData.put("intercept", (long) ((calRecord.first_intercept)));
-                            testData.put("scale", calRecord.first_scale);
+                            testData.put("slope", (double) (calRecord.first_slope));
+                            testData.put("intercept", (double) ((calRecord.first_intercept)));
+                            testData.put("scale", (double)calRecord.first_scale);
                         } else {
-                            testData.put("slope", (long) (calRecord.slope * 1000));
-                            testData.put("intercept", (long) ((calRecord.intercept * -1000) / (calRecord.slope * 1000)));
-                            testData.put("scale", 1);
+                            testData.put("slope", (double) (calRecord.slope * 1000));
+                            testData.put("intercept", (double) ((calRecord.intercept * -1000) / (calRecord.slope * 1000)));
+                            testData.put("scale", (double)1);
                         }
                         testData.put("type", "cal");
                         dexcomData.update(testData, testData, true, false, WriteConcern.UNACKNOWLEDGED);

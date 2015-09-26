@@ -15,14 +15,15 @@ public class GenericTimestampRecord {
     protected final int OFFSET_SYS_TIME = 0;
     protected final int OFFSET_DISPLAY_TIME = 4;
     protected Date systemTime;
-    protected int systemTimeSeconds;
+    protected long systemTimeSeconds;
     protected Date displayTime;
+    protected long displayTimeSeconds;
 
     public GenericTimestampRecord(byte[] packet) {
         systemTimeSeconds = ByteBuffer.wrap(packet).order(ByteOrder.LITTLE_ENDIAN).getInt(OFFSET_SYS_TIME);
         systemTime = Utils.receiverTimeToDate(systemTimeSeconds);
-        int dt = ByteBuffer.wrap(packet).order(ByteOrder.LITTLE_ENDIAN).getInt(OFFSET_DISPLAY_TIME);
-        displayTime = Utils.receiverTimeToDate(dt);
+        displayTimeSeconds = ByteBuffer.wrap(packet).order(ByteOrder.LITTLE_ENDIAN).getInt(OFFSET_DISPLAY_TIME);
+        displayTime = Utils.receiverTimeToDate(displayTimeSeconds);
     }
 
     public GenericTimestampRecord(Date displayTime, Date systemTime){
@@ -33,16 +34,14 @@ public class GenericTimestampRecord {
     public Date getSystemTime() {
         return systemTime;
     }
-
-    public int getSystemTimeSeconds() {
-        return systemTimeSeconds;
-    }
-
     public Date getDisplayTime() {
         return displayTime;
     }
+    public long getSystemTimeSeconds() {
+        return systemTimeSeconds;
+    }
     public long getDisplayTimeSeconds() {
-        return displayTime.getTime();
+        return displayTimeSeconds;
     }
 
 }

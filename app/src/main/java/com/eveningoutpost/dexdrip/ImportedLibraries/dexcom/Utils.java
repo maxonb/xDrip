@@ -5,7 +5,7 @@ import com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.records.GlucoseDataSe
 import com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.records.SensorRecord;
 
 import java.util.Date;
-import java.util.TimeZone;
+//import java.util.TimeZone;
 
 // This code and this particular library are from the NightScout android uploader
 // Check them out here: https://github.com/nightscout/android-uploader
@@ -14,12 +14,13 @@ import java.util.TimeZone;
 public class Utils {
 
     public static Date receiverTimeToDate(long delta) {
-        int currentTZOffset = TimeZone.getDefault().getRawOffset();
+        //int currentTZOffset = TimeZone.getDefault().getRawOffset();
+        int currentTZOffset = - 7 * 60 * 60 * 1000; // -8h PST + 1h DST
         long epochMS = 1230768000000L;  // Jan 01, 2009 00:00 in UTC
         long milliseconds = epochMS - currentTZOffset;
         long timeAdd = milliseconds + (1000L * delta);
-        TimeZone tz = TimeZone.getDefault();
-        if (tz.inDaylightTime(new Date())) timeAdd = timeAdd - (1000 * 60 * 60);
+//        TimeZone tz = TimeZone.getDefault();
+//        if (tz.inDaylightTime(new Date())) timeAdd = timeAdd - (1000 * 60 * 60);
         return new Date(timeAdd);
     }
 
@@ -49,17 +50,17 @@ public class Utils {
         return (timeAgoString.equals("") ? "--" : timeAgoString + "ago");
     }
 
-    public static GlucoseDataSet[] mergeGlucoseDataRecords(EGVRecord[] egvRecords,
-                                                           SensorRecord[] sensorRecords) {
-        int egvLength = egvRecords.length;
-        int sensorLength = sensorRecords.length;
-        int smallerLength = egvLength < sensorLength ? egvLength : sensorLength;
-        GlucoseDataSet[] glucoseDataSets = new GlucoseDataSet[smallerLength];
-        for (int i = 1; i <= smallerLength; i++) {
-            glucoseDataSets[smallerLength - i] = new GlucoseDataSet(egvRecords[egvLength - i], sensorRecords[sensorLength - i]);
-        }
-        return glucoseDataSets;
-    }
+//    public static GlucoseDataSet[] mergeGlucoseDataRecords(EGVRecord[] egvRecords,
+//                                                           SensorRecord[] sensorRecords) {
+//        int egvLength = egvRecords.length;
+//        int sensorLength = sensorRecords.length;
+//        int smallerLength = egvLength < sensorLength ? egvLength : sensorLength;
+//        GlucoseDataSet[] glucoseDataSets = new GlucoseDataSet[smallerLength];
+//        for (int i = 1; i <= smallerLength; i++) {
+//            glucoseDataSets[smallerLength - i] = new GlucoseDataSet(egvRecords[egvLength - i], sensorRecords[sensorLength - i]);
+//        }
+//        return glucoseDataSets;
+//    }
 
     public static String bytesToHex(byte[] bytes) {
         char[] hexArray = "0123456789ABCDEF".toCharArray();

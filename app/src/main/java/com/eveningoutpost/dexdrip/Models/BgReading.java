@@ -189,8 +189,9 @@ public class BgReading extends Model {
                 bgReading.calibration_uuid = calibration.uuid;
                 bgReading.raw_data = (sensorRecord.getUnfiltered() / 1000);
                 bgReading.filtered_data = (sensorRecord.getFiltered() / 1000);
-                bgReading.timestamp = sensorRecord.getSystemTime().getTime() + addativeOffset;
-                if(bgReading.timestamp > new Date().getTime()) { return; }
+                //bgReading.timestamp = sensorRecord.getSystemTime().getTime() + addativeOffset;
+                bgReading.timestamp = sensorRecord.getDisplayTime().getTime();
+                //if(bgReading.timestamp > new Date().getTime()) { return; }
                 bgReading.uuid = UUID.randomUUID().toString();
                 bgReading.time_since_sensor_started = bgReading.timestamp - sensor.started_at;
                 bgReading.synced = false;
@@ -247,7 +248,8 @@ public class BgReading extends Model {
     }
 
     public static boolean is_new(SensorRecord sensorRecord, long addativeOffset) {
-        double timestamp = sensorRecord.getSystemTime().getTime() + addativeOffset;
+        //double timestamp = sensorRecord.getSystemTime().getTime() + addativeOffset;
+        double timestamp = sensorRecord.getDisplayTime().getTime();
         Sensor sensor = Sensor.currentSensor();
         if(sensor != null) {
             BgReading bgReading = new Select()
