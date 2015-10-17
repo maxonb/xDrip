@@ -36,7 +36,6 @@ dependencies {
     testCompile 'com.squareup.okhttp:mockwebserver:2.2.0'
     compile 'com.squareup.okhttp:okhttp:2.2.0'
     compile 'com.google.code.gson:gson:2.3'
-    compile 'org.mongodb:mongo-java-driver:3.0.4'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.getpebble:pebblekit:2.6.0@aar'
     compile 'io.reactivex:rxjava:1.0.0'
@@ -44,4 +43,5 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.2.3@aar') {
         transitive = true;
     }
+    compile files('libs/mongo-java-driver-3.1.0-SNAPSHOT.jar')
 }
