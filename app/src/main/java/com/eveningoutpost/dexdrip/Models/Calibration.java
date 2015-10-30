@@ -252,12 +252,11 @@ public class Calibration extends Model {
 
                     Calibration calibration = new Calibration();
                     calibration.bg = calSubrecord.getCalBGL();
-                    //calibration.timestamp = calSubrecord.getDateEntered().getTime() + addativeOffset;
-                    calibration.timestamp = calSubrecord.getDateEntered().getTime();
-//                    if (calibration.timestamp > new Date().getTime()) {
-//                        Log.e(TAG, "ERROR - Calibration timestamp is from the future, wont save!");
-//                        return;
-//                    }
+                    calibration.timestamp = calSubrecord.getDateEntered().getTime() + addativeOffset;
+                    if (calibration.timestamp > new Date().getTime()) {
+                        Log.e(TAG, "ERROR - Calibration timestamp is from the future, wont save!");
+                        return;
+                    }
                     calibration.raw_value = calSubrecord.getCalRaw() / 1000;
                     calibration.slope = calSlope;
                     calibration.intercept = calIntercept;
@@ -302,10 +301,10 @@ public class Calibration extends Model {
         Calibration calibration = new Select()
                 .from(Calibration.class)
                 .where("Sensor = ? ", sensor.getId())
-                .where("timestamp <= ?", calSubrecord.getDateEntered().getTime() + (1000 * 60 * 2))
+                .where("timestamp <= ?", calSubrecord.getDateEntered().getTime() + addativeOffset + (1000 * 60 * 2))
                 .orderBy("timestamp desc")
                 .executeSingle();
-        if(calibration != null && Math.abs(calibration.timestamp - (calSubrecord.getDateEntered().getTime())) < (4*60*1000)) {
+        if(calibration != null && Math.abs(calibration.timestamp - (calSubrecord.getDateEntered().getTime() + addativeOffset)) < (4*60*1000)) {
             Log.d("CAL CHECK IN ", "Already have that calibration!");
             return false;
         } else {

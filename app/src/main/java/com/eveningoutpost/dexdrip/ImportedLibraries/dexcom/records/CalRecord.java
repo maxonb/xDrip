@@ -29,13 +29,12 @@ public class CalRecord extends GenericTimestampRecord {
         unk[2] = packet[34];
         decay = ByteBuffer.wrap(packet).order(ByteOrder.LITTLE_ENDIAN).getDouble(35);
         numRecords = packet[43];
-        long displayTimeOffset = (getDisplayTime().getTime() - getSystemTime().getTime()) / (1000);
         int start = 44;
         for (int i = 0; i < numRecords; i++) {
             Log.d("CalDebug","Loop #"+i);
             byte[] temp = new byte[SUB_LEN];
             System.arraycopy(packet, start, temp, 0, temp.length);
-            calSubrecords[i] = new CalSubrecord(temp, displayTimeOffset);
+            calSubrecords[i] = new CalSubrecord(temp);
             start += SUB_LEN;
         }
 

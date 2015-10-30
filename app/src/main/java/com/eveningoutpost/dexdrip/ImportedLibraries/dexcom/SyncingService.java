@@ -173,7 +173,7 @@ public class SyncingService extends IntentService {
                 // minutes ago. If a reading is skipped and the device is plugged in then nextUploadTime will be
                 // set to a negative number. This situation will eventually correct itself.
                 long nextUploadTime = (1000 * 60 * 5) - (timeSinceLastRecord * (1000));
-                long displayTime = readData.readDisplayTime().getTime();
+//                long displayTime = readData.readDisplayTime().getTime();
                 // FIXME: Device seems to flake out on battery level reads. Removing for now.
 //                int batLevel = readData.readBatteryLevel();
                 int batLevel = 100;

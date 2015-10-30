@@ -20,13 +20,13 @@ public class CalSubrecord {
     private Date dateApplied;
     private byte unk;
 
-    public CalSubrecord(byte[] packet, long displayTimeOffset) {
+    public CalSubrecord(byte[] packet) {
         int delta = ByteBuffer.wrap(packet).order(ByteOrder.LITTLE_ENDIAN).getInt();
-        dateEntered = Utils.receiverTimeToDate(delta + displayTimeOffset);
+        dateEntered = Utils.receiverTimeToDate(delta);
         calBGL = ByteBuffer.wrap(packet).order(ByteOrder.LITTLE_ENDIAN).getInt(4);
         calRaw = ByteBuffer.wrap(packet).order(ByteOrder.LITTLE_ENDIAN).getInt(8);
         delta = ByteBuffer.wrap(packet).order(ByteOrder.LITTLE_ENDIAN).getInt(12);
-        dateApplied = Utils.receiverTimeToDate(delta + displayTimeOffset);
+        dateApplied = Utils.receiverTimeToDate(delta);
         unk = packet[16];
     }
 

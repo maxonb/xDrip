@@ -151,9 +151,9 @@ public class ReadData {
         return md.getAttribute("SerialNumber");
     }
 
-    public Date readDisplayTime() {
-        return Utils.receiverTimeToDate(readSystemTime() + readDisplayTimeOffset());
-    }
+//    public Date readDisplayTime() {
+//        return Utils.receiverTimeToDate(readSystemTime() + readDisplayTimeOffset());
+//    }
 
     public long readSystemTime() {
         Log.d(TAG, "Reading system time...");

@@ -174,7 +174,9 @@ public class DexShareCollectionService extends Service {
             BgReading bgReading = BgReading.last();
             long retry_in;
             if (bgReading != null) {
-                retry_in = Math.min(Math.max((1000 * 30), (1000 * 60 * 5) - (new Date().getTime() - bgReading.timestamp) - (1000 * 15)), (1000 * 60 * 5));
+//                retry_in = Math.min(Math.max((1000 * 30), (1000 * 60 * 5) - (new Date().getTime() - bgReading.timestamp) - (1000 * 15)), (1000 * 60 * 5));
+                long fiveMinutes = 1000 * 60 * 5;
+                retry_in = 1000 * 5 + fiveMinutes - ( (new Date().getTime() - bgReading.timestamp) % fiveMinutes );
             } else {
                 retry_in = (1000 * 20);
             }
@@ -256,14 +258,14 @@ public class DexShareCollectionService extends Service {
                     Log.d(TAG, "Made the full round trip, got " + s + " as the system time");
                     final long addativeSystemTimeOffset = new Date().getTime() - s;
 
-                    final Action1<Long> dislpayTimeListener = new Action1<Long>() {
-                        @Override
-                        public void call(Long s) {
-                            if (s != null) {
-                                Log.d(TAG, "Made the full round trip, got " + s + " as the display time offset");
-                                final long addativeDisplayTimeOffset = addativeSystemTimeOffset - (s*1000);
-
-                                Log.d(TAG, "Making " + addativeDisplayTimeOffset + " the the total time offset");
+//                    final Action1<Long> dislpayTimeListener = new Action1<Long>() {
+//                        @Override
+//                        public void call(Long s) {
+//                            if (s != null) {
+//                                Log.d(TAG, "Made the full round trip, got " + s + " as the display time offset");
+//                                final long addativeDisplayTimeOffset = addativeSystemTimeOffset - (s*1000);
+//
+//                                Log.d(TAG, "Making " + addativeDisplayTimeOffset + " the the total time offset");
 
                                 final Action1<EGVRecord[]> evgRecordListener = new Action1<EGVRecord[]>() {
                                     @Override
@@ -296,16 +298,16 @@ public class DexShareCollectionService extends Service {
                                     public void call(CalRecord[] calRecords) {
                                         if (calRecords != null) {
                                             Log.d(TAG, "Made the full round trip, got " + calRecords.length + " Cal Records");
-                                            Calibration.create(calRecords, addativeDisplayTimeOffset, getApplicationContext());
+                                            Calibration.create(calRecords, addativeSystemTimeOffset, getApplicationContext());
                                             readData.getRecentSensorRecords(sensorRecordListener);
                                         }
                                     }
                                 };
                                 readData.getRecentCalRecords(calRecordListener);
-                            }
-                        }
-                    };
-                    readData.readDisplayTimeOffset(dislpayTimeListener);
+//                            }
+//                        }
+//                    };
+//                    readData.readDisplayTimeOffset(dislpayTimeListener);
                 }
             }
         };
