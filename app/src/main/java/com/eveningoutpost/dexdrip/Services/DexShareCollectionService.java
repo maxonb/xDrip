@@ -21,11 +21,13 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.activeandroid.query.Select;
+import com.eveningoutpost.dexdrip.Home;
 import com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.ReadDataShare;
 import com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.records.CalRecord;
 import com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.records.EGVRecord;
@@ -51,6 +53,8 @@ import java.util.logging.Logger;
 
 import rx.Observable;
 import rx.functions.Action1;
+
+import static java.lang.System.currentTimeMillis;
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
 public class DexShareCollectionService extends Service {
@@ -173,18 +177,36 @@ public class DexShareCollectionService extends Service {
         if (CollectionServiceStarter.isBTShare(getApplicationContext())) {
             BgReading bgReading = BgReading.last();
             long retry_in;
+            AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
+
             if (bgReading != null) {
 //                retry_in = Math.min(Math.max((1000 * 30), (1000 * 60 * 5) - (new Date().getTime() - bgReading.timestamp) - (1000 * 15)), (1000 * 60 * 5));
                 long fiveMinutes = 1000 * 60 * 5;
-                retry_in = 1000 * 5 + fiveMinutes - ( (new Date().getTime() - bgReading.timestamp) % fiveMinutes );
+                retry_in = 15 * 1000 + fiveMinutes - ( (new Date().getTime() - bgReading.timestamp) % fiveMinutes );
+
             } else {
                 retry_in = (1000 * 20);
             }
-            Log.d(TAG, "Restarting in: " + (retry_in / (60 * 1000)) + " minutes");
-            Calendar calendar = Calendar.getInstance();
-            AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
-            alarm.setExact(alarm.RTC_WAKEUP, calendar.getTimeInMillis() + retry_in, PendingIntent.getService(this, 0, new Intent(this, DexShareCollectionService.class), 0));
+
+            alarm.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + retry_in, PendingIntent.getService(this, 0, new Intent(this, DexShareCollectionService.class), 0));
+            //SetAlarmClock(retry_in);
+
+            Log.d(TAG, "Restarting in: " + (retry_in / (60 * 1000)) + " minutes "  + ((retry_in / 1000) % 60) + " seconds");
         }
+    }
+
+    private void SetAlarmClock(long retry_in) {
+
+        AlarmManager am=(AlarmManager)getSystemService(Context.ALARM_SERVICE);
+
+        PendingIntent alarmClockSender = PendingIntent.getService(this, 0, new Intent(this, DexShareCollectionService.class), 0);
+
+        Intent mainActivityIntent = new Intent(this, Home.class);
+        mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent mainActivitySender = PendingIntent.getActivity(this, 0, mainActivityIntent, 0);
+        AlarmManager.AlarmClockInfo info = new AlarmManager.AlarmClockInfo(currentTimeMillis() + retry_in, mainActivitySender);
+
+        am.setAlarmClock(info, alarmClockSender);
     }
 
     public void setFailoverTimer() { //Sometimes it gets stuck in limbo on 4.4, this should make it try again
