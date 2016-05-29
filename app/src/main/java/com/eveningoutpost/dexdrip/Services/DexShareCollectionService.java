@@ -188,8 +188,8 @@ public class DexShareCollectionService extends Service {
                 retry_in = (1000 * 20);
             }
 
-            alarm.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + retry_in, PendingIntent.getService(this, 0, new Intent(this, DexShareCollectionService.class), 0));
-            //SetAlarmClock(retry_in);
+            //alarm.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + retry_in, PendingIntent.getService(this, 0, new Intent(this, DexShareCollectionService.class), 0));
+            SetAlarmClock(retry_in);
 
             Log.d(TAG, "Restarting in: " + (retry_in / (60 * 1000)) + " minutes "  + ((retry_in / 1000) % 60) + " seconds");
         }
